@@ -120,10 +120,10 @@ public class QuantityMeasurementApp {
                 throw new IllegalArgumentException("Target unit cannot be null");
             }
 
-            double baseValue = convertToBaseUnit();
-            double convertedValue = targetUnit.convertFromBaseUnit(baseValue);
-
-            return new Quantity<>(convertedValue, targetUnit);
+            return new Quantity<>(
+                    targetUnit.convertFromBaseUnit(convertToBaseUnit()),
+                    targetUnit
+            );
         }
 
         public Quantity<U> add(Quantity<U> other) {
@@ -133,13 +133,41 @@ public class QuantityMeasurementApp {
         public Quantity<U> add(Quantity<U> other, U targetUnit) {
             validateOtherAndTarget(other, targetUnit);
 
-            double sumBase =
+            double resultBase =
                     this.convertToBaseUnit() + other.convertToBaseUnit();
 
-            double result =
-                    targetUnit.convertFromBaseUnit(sumBase);
+            return new Quantity<>(
+                    targetUnit.convertFromBaseUnit(resultBase),
+                    targetUnit
+            );
+        }
 
-            return new Quantity<>(result, targetUnit);
+        public Quantity<U> subtract(Quantity<U> other) {
+            return subtract(other, this.unit);
+        }
+
+        public Quantity<U> subtract(Quantity<U> other, U targetUnit) {
+            validateOtherAndTarget(other, targetUnit);
+
+            double resultBase =
+                    this.convertToBaseUnit() - other.convertToBaseUnit();
+
+            return new Quantity<>(
+                    targetUnit.convertFromBaseUnit(resultBase),
+                    targetUnit
+            );
+        }
+
+        public double divide(Quantity<U> other) {
+            validateOtherAndTarget(other, this.unit);
+
+            double divisor = other.convertToBaseUnit();
+
+            if (Math.abs(divisor) < EPSILON) {
+                throw new ArithmeticException("Division by zero is not allowed");
+            }
+
+            return this.convertToBaseUnit() / divisor;
         }
 
         private void validateOtherAndTarget(Quantity<U> other, U targetUnit) {
@@ -189,25 +217,28 @@ public class QuantityMeasurementApp {
     }
 
     public static void main(String[] args) {
-        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
-                .equals(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)));
+        System.out.println(new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(6.0, LengthUnit.INCHES)));
 
-        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
-                .convertTo(VolumeUnit.MILLILITRE));
+        System.out.println(new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(6.0, LengthUnit.INCHES), LengthUnit.INCHES));
 
-        System.out.println(new Quantity<>(2.0, VolumeUnit.GALLON)
-                .convertTo(VolumeUnit.LITRE));
+        System.out.println(new Quantity<>(10.0, WeightUnit.KILOGRAM)
+                .subtract(new Quantity<>(5000.0, WeightUnit.GRAM)));
 
-        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
-                .add(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)));
+        System.out.println(new Quantity<>(5.0, VolumeUnit.LITRE)
+                .subtract(new Quantity<>(500.0, VolumeUnit.MILLILITRE)));
 
-        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
-                .add(new Quantity<>(1.0, VolumeUnit.GALLON), VolumeUnit.MILLILITRE));
+        System.out.println(new Quantity<>(10.0, LengthUnit.FEET)
+                .divide(new Quantity<>(2.0, LengthUnit.FEET)));
 
-        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
-                .equals(new Quantity<>(1.0, LengthUnit.FEET)));
+        System.out.println(new Quantity<>(24.0, LengthUnit.INCHES)
+                .divide(new Quantity<>(2.0, LengthUnit.FEET)));
 
-        System.out.println(new Quantity<>(1.0, WeightUnit.KILOGRAM)
-                .equals(new Quantity<>(1000.0, WeightUnit.GRAM)));
+        System.out.println(new Quantity<>(2000.0, WeightUnit.GRAM)
+                .divide(new Quantity<>(1.0, WeightUnit.KILOGRAM)));
+
+        System.out.println(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)
+                .divide(new Quantity<>(1.0, VolumeUnit.LITRE)));
     }
 }
