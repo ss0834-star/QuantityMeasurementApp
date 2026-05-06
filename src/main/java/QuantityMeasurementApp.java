@@ -64,6 +64,34 @@ public class QuantityMeasurementApp {
         }
     }
 
+    enum VolumeUnit implements IMeasurable {
+        LITRE(1.0),
+        MILLILITRE(0.001),
+        GALLON(3.78541);
+
+        private final double conversionFactor;
+
+        VolumeUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+
+        public double convertToBaseUnit(double value) {
+            return value * conversionFactor;
+        }
+
+        public double convertFromBaseUnit(double baseValue) {
+            return baseValue / conversionFactor;
+        }
+
+        public String getUnitName() {
+            return name();
+        }
+    }
+
     static class Quantity<U extends IMeasurable> {
         private static final double EPSILON = 0.000001;
 
@@ -161,25 +189,25 @@ public class QuantityMeasurementApp {
     }
 
     public static void main(String[] args) {
-        System.out.println(new Quantity<>(1.0, LengthUnit.FEET)
-                .equals(new Quantity<>(12.0, LengthUnit.INCHES)));
+        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
+                .equals(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)));
 
-        System.out.println(new Quantity<>(1.0, LengthUnit.FEET)
-                .convertTo(LengthUnit.INCHES));
+        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
+                .convertTo(VolumeUnit.MILLILITRE));
 
-        System.out.println(new Quantity<>(1.0, LengthUnit.FEET)
-                .add(new Quantity<>(12.0, LengthUnit.INCHES), LengthUnit.FEET));
+        System.out.println(new Quantity<>(2.0, VolumeUnit.GALLON)
+                .convertTo(VolumeUnit.LITRE));
+
+        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
+                .add(new Quantity<>(1000.0, VolumeUnit.MILLILITRE)));
+
+        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
+                .add(new Quantity<>(1.0, VolumeUnit.GALLON), VolumeUnit.MILLILITRE));
+
+        System.out.println(new Quantity<>(1.0, VolumeUnit.LITRE)
+                .equals(new Quantity<>(1.0, LengthUnit.FEET)));
 
         System.out.println(new Quantity<>(1.0, WeightUnit.KILOGRAM)
                 .equals(new Quantity<>(1000.0, WeightUnit.GRAM)));
-
-        System.out.println(new Quantity<>(1.0, WeightUnit.KILOGRAM)
-                .convertTo(WeightUnit.GRAM));
-
-        System.out.println(new Quantity<>(1.0, WeightUnit.KILOGRAM)
-                .add(new Quantity<>(1000.0, WeightUnit.GRAM), WeightUnit.KILOGRAM));
-
-        System.out.println(new Quantity<>(1.0, LengthUnit.FEET)
-                .equals(new Quantity<>(1.0, WeightUnit.KILOGRAM)));
     }
 }
