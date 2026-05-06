@@ -1,17 +1,46 @@
 public class QuantityMeasurementApp {
 
-    static class Feet {
-        private final double value;
+    enum LengthUnit {
+        FEET(1.0),
+        INCHES(1.0 / 12.0);
 
-        public Feet(double value) {
+        private final double conversionFactor;
+
+        LengthUnit(double conversionFactor) {
+            this.conversionFactor = conversionFactor;
+        }
+
+        public double getConversionFactor() {
+            return conversionFactor;
+        }
+    }
+
+    static class QuantityLength {
+
+        private final double value;
+        private final LengthUnit unit;
+
+        public QuantityLength(double value, LengthUnit unit) {
+
             if (!Double.isFinite(value)) {
-                throw new IllegalArgumentException("Feet value must be numeric");
+                throw new IllegalArgumentException("Value must be numeric");
             }
+
+            if (unit == null) {
+                throw new IllegalArgumentException("Unit cannot be null");
+            }
+
             this.value = value;
+            this.unit = unit;
+        }
+
+        private double convertToFeet() {
+            return value * unit.getConversionFactor();
         }
 
         @Override
         public boolean equals(Object obj) {
+
             if (this == obj) {
                 return true;
             }
@@ -20,59 +49,31 @@ public class QuantityMeasurementApp {
                 return false;
             }
 
-            Feet feet = (Feet) obj;
-            return Double.compare(feet.value, value) == 0;
+            QuantityLength other = (QuantityLength) obj;
+
+            return Double.compare(
+                    this.convertToFeet(),
+                    other.convertToFeet()
+            ) == 0;
         }
-    }
-
-    static class Inches {
-        private final double value;
-
-        public Inches(double value) {
-            if (!Double.isFinite(value)) {
-                throw new IllegalArgumentException("Inches value must be numeric");
-            }
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            Inches inches = (Inches) obj;
-            return Double.compare(inches.value, value) == 0;
-        }
-    }
-
-    static boolean compareFeetEquality(double firstValue, double secondValue) {
-        Feet firstFeet = new Feet(firstValue);
-        Feet secondFeet = new Feet(secondValue);
-        return firstFeet.equals(secondFeet);
-    }
-
-    static boolean compareInchesEquality(double firstValue, double secondValue) {
-        Inches firstInches = new Inches(firstValue);
-        Inches secondInches = new Inches(secondValue);
-        return firstInches.equals(secondInches);
     }
 
     public static void main(String[] args) {
-        System.out.println("Input: 1.0 ft and 1.0 ft");
-        System.out.println("Output: Equal (" + compareFeetEquality(1.0, 1.0) + ")");
 
-        System.out.println("Input: 1.0 inch and 1.0 inch");
-        System.out.println("Output: Equal (" + compareInchesEquality(1.0, 1.0) + ")");
+        QuantityLength feet =
+                new QuantityLength(1.0, LengthUnit.FEET);
 
-        System.out.println("Input: 1.0 ft and 2.0 ft");
-        System.out.println("Output: Equal (" + compareFeetEquality(1.0, 2.0) + ")");
+        QuantityLength inches =
+                new QuantityLength(12.0, LengthUnit.INCHES);
 
-        System.out.println("Input: 1.0 inch and 2.0 inch");
-        System.out.println("Output: Equal (" + compareInchesEquality(1.0, 2.0) + ")");
+        QuantityLength inchToInch1 =
+                new QuantityLength(1.0, LengthUnit.INCHES);
+
+        QuantityLength inchToInch2 =
+                new QuantityLength(1.0, LengthUnit.INCHES);
+
+        System.out.println(feet.equals(inches));
+
+        System.out.println(inchToInch1.equals(inchToInch2));
     }
 }
