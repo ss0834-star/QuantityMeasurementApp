@@ -2,7 +2,9 @@ public class QuantityMeasurementApp {
 
     enum LengthUnit {
         FEET(1.0),
-        INCHES(1.0 / 12.0);
+        INCHES(1.0 / 12.0),
+        YARDS(3.0),
+        CENTIMETERS(0.0328084);
 
         private final double conversionFactor;
 
@@ -21,7 +23,6 @@ public class QuantityMeasurementApp {
         private final LengthUnit unit;
 
         public QuantityLength(double value, LengthUnit unit) {
-
             if (!Double.isFinite(value)) {
                 throw new IllegalArgumentException("Value must be numeric");
             }
@@ -40,7 +41,6 @@ public class QuantityMeasurementApp {
 
         @Override
         public boolean equals(Object obj) {
-
             if (this == obj) {
                 return true;
             }
@@ -51,29 +51,21 @@ public class QuantityMeasurementApp {
 
             QuantityLength other = (QuantityLength) obj;
 
-            return Double.compare(
-                    this.convertToFeet(),
-                    other.convertToFeet()
-            ) == 0;
+            return Math.abs(this.convertToFeet() - other.convertToFeet()) < 0.000001;
         }
     }
 
     public static void main(String[] args) {
+        System.out.println(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(3.0, LengthUnit.FEET)));
 
-        QuantityLength feet =
-                new QuantityLength(1.0, LengthUnit.FEET);
+        System.out.println(new QuantityLength(1.0, LengthUnit.YARDS)
+                .equals(new QuantityLength(36.0, LengthUnit.INCHES)));
 
-        QuantityLength inches =
-                new QuantityLength(12.0, LengthUnit.INCHES);
+        System.out.println(new QuantityLength(2.0, LengthUnit.CENTIMETERS)
+                .equals(new QuantityLength(2.0, LengthUnit.CENTIMETERS)));
 
-        QuantityLength inchToInch1 =
-                new QuantityLength(1.0, LengthUnit.INCHES);
-
-        QuantityLength inchToInch2 =
-                new QuantityLength(1.0, LengthUnit.INCHES);
-
-        System.out.println(feet.equals(inches));
-
-        System.out.println(inchToInch1.equals(inchToInch2));
+        System.out.println(new QuantityLength(1.0, LengthUnit.CENTIMETERS)
+                .equals(new QuantityLength(0.393701, LengthUnit.INCHES)));
     }
 }
